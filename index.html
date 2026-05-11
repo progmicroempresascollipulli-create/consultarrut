@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta RUT Municipal</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .caja { background: white; padding: 40px; border-radius: 20px; width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 10px; background: #2563eb; color: white; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #94a3b8; }
+        #resultado { margin-top: 25px; font-size: 15px; color: #444; }
+        .error { color: #dc2626; }
+        .exito { color: #16a34a; text-align: left; background: #f0fdf4; padding: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="caja">
+    <h2>Consulta de RUT</h2>
+    <input id="rut" type="text" placeholder="Ej: 12345678-9" />
+    <button id="btnBuscar" onclick="buscar()">Buscar</button>
+    <div id="resultado"></div>
+</div>
+
+<script>
+async function buscar() {
+    const input = document.getElementById("rut");
+    const resDiv = document.getElementById("resultado");
+    const btn = document.getElementById("btnBuscar");
+
+    // Limpiamos el RUT: quitamos puntos, guiones y espacios
+    const rutLimpio = input.value.replace(/[^0-9kK]/g, "");
+
+    if (!rutLimpio) {
+        resDiv.innerHTML = "<span class='error'>Ingresa un RUT válido</span>";
+        return;
+    }
+
+    resDiv.innerHTML = "Buscando información...";
+    btn.disabled = true;
+
+    // REEMPLAZA ESTA URL CON LA QUE COPIASTE EN EL PASO 1
+    const urlBase = "https://script.google.com/macros/s/AKfycbxoROsGxl1YPYDurMQBxGILRELq3gwskL3k9YdhQ0OG4_nuQCogzOwAPE0ur3IUQtYx0A/exec";
+    const url = `${urlBase}?rut=${rutLimpio}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.encontrado) {
+            resDiv.innerHTML = `
+                <div class="exito">
+                    <b>Nombre:</b> ${data.nombre}<br>
+                    <b>Estado:</b> ${data.estado}
+                </div>`;
+        } else {
+            resDiv.innerHTML = "<span class='error'>RUT no registrado en el sistema</span>";
+        }
+    } catch (e) {
+        resDiv.innerHTML = "<span class='error'>Error al conectar con el servidor</span>";
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
+</body>
+</html>
